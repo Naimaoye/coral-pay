@@ -1,7 +1,6 @@
 import {
     validateEmailAddress,
     validatePhoneNumber,
-    validateCreditCardType,
     validateCVV,
     validateExpiryDate,
     validateCardNumber
@@ -15,28 +14,27 @@ export default class VerifyCreditCard {
          * @static
          * @param {object} req - Request object
          * @param {object} res - Response object
-         * @returns {object} JSON response or XML
+         * @returns  JSON response or XML
          * @memberof VerifyCreditCard
     */
      static async creditCard(req, res) {
         try {
-        const { cvv, expiryDate, cardPin, emailAddress, phoneNumber, cardType } = req.body;
-        const {apiKey} = req.params;
-        // logger.debug('BRJ response', response);
+        const { cvv, expiryDate, cardPin, emailAddress, phoneNumber } = req.body;
+        const {apiKey} = req.query;
         const splitDate = expiryDate.split('/');
         const exMonth = splitDate[0];
         const exYear = splitDate[1];
-        if(apiKey == ""){
+        if(!apiKey){
             res.status(403).send({
                 'message': 'you are not authorized'
             })
         } else {
-        if(cvv == "" || expiryDate == "" || cardPin == "" || emailAddress == "" || phoneNumber == "" || cardType == ""){
+        if(!cvv || !expiryDate || !cardPin || !emailAddress || !phoneNumber){
           res.status(400).send({
-              'message': "field must not be empty"
+              'message': "no field should be empty!"
           })
         } else {
-            const validateCardPin = validateCardNumber(cardPin, cardType);
+            const validateCardPin = validateCardNumber(cardPin);
             const validatecvv = validateCVV(cvv);
             const checkExpiryDate = validateExpiryDate(exMonth, exYear);
             const checkPhoneNumber = validatePhoneNumber(phoneNumber);
@@ -44,12 +42,19 @@ export default class VerifyCreditCard {
             if(validateCardPin && validatecvv && checkExpiryDate && checkPhoneNumber && checkEmail){
                 res.status(200).send({
                     'valid': true,
-                })
+                    'cardType': validateCardPin,
+                    'cvv': cvv,
+                    'expiryDate': expiryDate,
+                    'pin': cardPin,
+                });
             }
-
         }
       }
       } catch(e){
+        res.status(400).send({
+            'valid': false,
+            'error': e.message
+        })
         logger.error('Error from integration', e)
       }
    }

@@ -1,32 +1,15 @@
+import { logger } from '../config/loggerConfig';
 import { valid_credit_card } from './luhnAlgo';
 import {
-    validateAmericanExpress,
-    validateVisa,
-    validateMasterCard,
-    validateDiscorver,
-    validateDinersClub,
-    validateJCB
+   returnCardType
 } from './validateCardType';
 
-export const validateCardNumber = (digits, cardType) => {
+export const validateCardNumber = (digits) => {
     // using Luhn's algorithm.
     const luhnsValidation = valid_credit_card(digits);
     if(luhnsValidation){
-        if(cardType == 'american express'){
-            validateAmericanExpress(digits);
-        } else if(cardType == 'visa'){
-            validateVisa(digits);
-        } else if(cardType == 'mastercard'){
-            validateMasterCard(digits);
-        } else if(cardType == 'discover'){
-            validateDiscorver(digits)
-        } else if(cardType == 'diners club'){
-            validateDinersClub(digits)
-        } else if(cardType == 'jcb'){
-            validateJCB(digits)
-        } else {
-            throw new Error('selected card type does not match with card digits')
-        }
+        const cardType = returnCardType(digits);
+        return cardType;
     } else {
         throw new Error('not a valid credit card');
     }
@@ -55,45 +38,23 @@ export const validateCVV = (cvv) => {
          }
 };
 
-export const validateCreditCardType = (cardType) => {
-    const cardTypeArr = [
-        'american express',
-        'visa',
-        'mastercard',
-        'discover',
-        'diners club',
-        'jcb'
-    ];
-    let cardTypeValue = cardType.toLowerCase();
-    if(cardTypeArr.includes(cardTypeValue)){
-        return cardTypeValue;
-    } else {
-        return false;
-    }
-};
 
 export const validatePhoneNumber = (phoneNumber) => {
-    var number;
     var pattern = /^([0]{1})([7-9]{1})([0|1]{1})([\d]{1})([\d]{7,8})$/g;
   
-    if (!phoneNumber || phoneNumber.length < 5) return false;
-  
-    if (typeof phoneNumber === 'number') {
-  
-      // numbers never begin with 0, force this to become a string
-      number = '0' + phoneNumber;
-  
-    } else {
-  
-      return false;
-  
-    }
-  
     // trim all white spaces
-    return pattern.test(number.replace(/\s+/g, ''));
+    if(pattern.test(phoneNumber.replace(/\s+/g, ''))){
+        return true;
+    } else {
+        throw new Error('not a valid phone number');
+    }
 };
 
 export const validateEmailAddress = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+    if(re.test(String(email).toLowerCase())){
+        return true;
+    } else{
+        throw new Error('not a valid email address');
+    }
 };

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import cardRoute from './route/index';
+import { logger } from './config/loggerConfig';
 
 const app = express();
 
@@ -15,6 +16,14 @@ app.use(bodyParser.json());
 app.use('/api/coral-pay', cardRoute);
 
 
+
+// app.use((req, res, next) => {
+//   res.sendData = (obj) => {
+   
+//   };
+
+//   next();
+// });
 
 // handle non-existing route
 app.use((req, res, next) => {
@@ -50,7 +59,7 @@ if(!isProduction) {
     });
   });
 
-const PORT = 9815;
+const PORT = 9800;
 app.listen(PORT, () => {
-    console.log(`App running on port ${PORT}`);
+  logger.info(`App running on port ${PORT}`);
 });
